@@ -61,7 +61,7 @@ class SampleTest {
 
         assertEquals("S1", sample.getId());
         assertEquals("갈륨비소", sample.getName());
-        assertEquals(10, sample.getAvgProductionMinutes());
+        assertEquals(10.0, sample.getAvgProductionMinutes(), 1e-9);
         assertEquals(0.9, sample.getYield());
         assertEquals(100, sample.getStock());
     }

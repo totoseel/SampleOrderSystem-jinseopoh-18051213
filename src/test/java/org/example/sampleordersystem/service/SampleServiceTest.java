@@ -18,7 +18,7 @@ class SampleServiceTest {
         assertNotNull(result);
         assertEquals("S001", result.getId());
         assertEquals("실리콘웨이퍼", result.getName());
-        assertEquals(30, result.getAvgProductionMinutes());
+        assertEquals(30.0, result.getAvgProductionMinutes(), 1e-9);
         assertEquals(0.9, result.getYield(), 1e-9);
         assertEquals(100, result.getStock());
     }

@@ -37,7 +37,7 @@ public class SampleController {
         String stockStr = view.readLine();
 
         try {
-            int avgMin = Integer.parseInt(avgMinStr);
+            double avgMin = Double.parseDouble(avgMinStr);
             double yield = Double.parseDouble(yieldStr);
             int stock = Integer.parseInt(stockStr);
             sampleService.register(id, name, avgMin, yield, stock);

@@ -7,7 +7,7 @@ public class Sample {
 
     private final String id;
     private final String name;
-    private final int avgProductionMinutes;
+    private final double avgProductionMinutes;
     private final double yield;
     private int stock;
 
@@ -15,7 +15,7 @@ public class Sample {
     public Sample(
         @JsonProperty("id") String id,
         @JsonProperty("name") String name,
-        @JsonProperty("avgProductionMinutes") int avgProductionMinutes,
+        @JsonProperty("avgProductionMinutes") double avgProductionMinutes,
         @JsonProperty("yield") double yield,
         @JsonProperty("stock") int stock
     ) {
@@ -45,7 +45,7 @@ public class Sample {
 
     public String getId() { return id; }
     public String getName() { return name; }
-    public int getAvgProductionMinutes() { return avgProductionMinutes; }
+    public double getAvgProductionMinutes() { return avgProductionMinutes; }
     public double getYield() { return yield; }
     public int getStock() { return stock; }
 }

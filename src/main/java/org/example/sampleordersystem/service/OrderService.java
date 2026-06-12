@@ -56,7 +56,7 @@ public class OrderService {
             order.transitionTo(OrderStatus.PRODUCING);
             orderRepository.save(order);
             int actualQty = (int) Math.ceil(shortage / (sample.getYield() * 0.9));
-            double totalMinutes = (double) sample.getAvgProductionMinutes() * actualQty;
+            double totalMinutes = sample.getAvgProductionMinutes() * actualQty;
             ProductionEntry entry = new ProductionEntry(
                 order.getOrderId(), sample.getId(), shortage, actualQty, totalMinutes, null
             );

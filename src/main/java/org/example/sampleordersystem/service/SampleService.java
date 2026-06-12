@@ -14,7 +14,7 @@ public class SampleService {
         this.sampleRepository = sampleRepository;
     }
 
-    public Sample register(String id, String name, int avgProductionMinutes, double yield, int stock) {
+    public Sample register(String id, String name, double avgProductionMinutes, double yield, int stock) {
         if (sampleRepository.findById(id).isPresent()) {
             throw new IllegalArgumentException("이미 등록된 시료 ID입니다");
         }
