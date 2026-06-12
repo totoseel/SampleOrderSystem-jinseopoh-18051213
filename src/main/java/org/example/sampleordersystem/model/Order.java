@@ -12,7 +12,7 @@ public class Order {
 
     private static final Map<OrderStatus, Set<OrderStatus>> ALLOWED_TRANSITIONS = Map.of(
         OrderStatus.RESERVED,  EnumSet.of(OrderStatus.CONFIRMED, OrderStatus.PRODUCING, OrderStatus.REJECTED),
-        OrderStatus.PRODUCING, EnumSet.of(OrderStatus.CONFIRMED),
+        OrderStatus.PRODUCING, EnumSet.of(OrderStatus.CONFIRMED, OrderStatus.RESERVED),
         OrderStatus.CONFIRMED, EnumSet.of(OrderStatus.RELEASE),
         OrderStatus.REJECTED,  EnumSet.noneOf(OrderStatus.class),
         OrderStatus.RELEASE,   EnumSet.noneOf(OrderStatus.class)

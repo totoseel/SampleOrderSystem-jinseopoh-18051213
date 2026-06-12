@@ -117,4 +117,16 @@ public class ProductionService {
         double totalSeconds = (entry.getTotalMinutes() / timeScale) * 60.0;
         return Optional.of(entry.getStartedAt().plusSeconds((long) totalSeconds));
     }
+
+    public void cancel(String orderId) {
+        productionRepository.findByOrderId(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("생산 큐에 없는 주문입니다: " + orderId));
+        productionRepository.delete(orderId);
+        orderRepository.findById(orderId).ifPresent(order -> {
+            order.transitionTo(OrderStatus.RESERVED);
+            orderRepository.save(order);
+        });
+        // 취소 항목이 현재 생산 중(startedAt != null)이었다면 다음 대기 항목을 시작
+        startNextEntry();
+    }
 }

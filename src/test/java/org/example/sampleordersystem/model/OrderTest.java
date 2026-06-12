@@ -89,4 +89,14 @@ class OrderTest {
         assertThrows(IllegalStateException.class,
             () -> order.transitionTo(OrderStatus.CONFIRMED));
     }
+
+    @Test
+    @DisplayName("PRODUCING → RESERVED 전환은 허용된다 (생산 취소 복원)")
+    void orderAllowsProducingToReserved() {
+        Order order = new Order("ORD-20240101-0001", "S1", "홍길동", 10,
+            LocalDateTime.now());
+        order.transitionTo(OrderStatus.PRODUCING);
+        order.transitionTo(OrderStatus.RESERVED);
+        assertEquals(OrderStatus.RESERVED, order.getStatus());
+    }
 }

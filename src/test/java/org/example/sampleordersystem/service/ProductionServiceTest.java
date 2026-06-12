@@ -270,4 +270,66 @@ class ProductionServiceTest {
         assertEquals(OrderStatus.CONFIRMED,
             orderRepo.findById("ORD-PRE").get().getStatus());
     }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("cancel: 현재 생산 중인 항목을 취소하면 큐에서 제거되고 주문이 RESERVED로 복원된다")
+    void cancelCurrentEntryRestoresOrderToReserved() {
+        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 5));
+        Order order = new Order("ORD-001", "S001", "홍길동", 10, timeProvider.now());
+        order.transitionTo(OrderStatus.PRODUCING);
+        orderRepo.save(order);
+        productionService.enqueue(new ProductionEntry("ORD-001", "S001", 5, 7, 210.0, null));
+
+        productionService.cancel("ORD-001");
+
+        assertTrue(productionService.getCurrent().isEmpty());
+        assertEquals(OrderStatus.RESERVED, orderRepo.findById("ORD-001").get().getStatus());
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("cancel: 대기 중인 항목을 취소하면 큐에서 제거되고 주문이 RESERVED로 복원된다")
+    void cancelWaitingEntryRestoresOrderToReserved() {
+        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 5));
+        Order o1 = new Order("ORD-001", "S001", "홍길동", 10, timeProvider.now());
+        o1.transitionTo(OrderStatus.PRODUCING);
+        orderRepo.save(o1);
+        Order o2 = new Order("ORD-002", "S001", "김철수", 5, timeProvider.now());
+        o2.transitionTo(OrderStatus.PRODUCING);
+        orderRepo.save(o2);
+        productionService.enqueue(new ProductionEntry("ORD-001", "S001", 5, 7, 210.0, null));
+        productionService.enqueue(new ProductionEntry("ORD-002", "S001", 3, 4, 120.0, null));
+
+        productionService.cancel("ORD-002");
+
+        assertEquals(1, productionService.getQueue().size());
+        assertEquals("ORD-001", productionService.getQueue().get(0).getOrderId());
+        assertEquals(OrderStatus.RESERVED, orderRepo.findById("ORD-002").get().getStatus());
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("cancel: 현재 생산 중인 항목 취소 시 다음 대기 항목이 자동 시작된다")
+    void cancelCurrentEntryStartsNextWaiting() {
+        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 5));
+        Order o1 = new Order("ORD-001", "S001", "홍길동", 10, timeProvider.now());
+        o1.transitionTo(OrderStatus.PRODUCING);
+        orderRepo.save(o1);
+        Order o2 = new Order("ORD-002", "S001", "김철수", 5, timeProvider.now());
+        o2.transitionTo(OrderStatus.PRODUCING);
+        orderRepo.save(o2);
+        productionService.enqueue(new ProductionEntry("ORD-001", "S001", 5, 7, 210.0, null));
+        productionService.enqueue(new ProductionEntry("ORD-002", "S001", 3, 4, 120.0, null));
+
+        productionService.cancel("ORD-001");
+
+        assertTrue(productionService.getCurrent().isPresent());
+        assertEquals("ORD-002", productionService.getCurrent().get().getOrderId());
+        assertNotNull(productionService.getCurrent().get().getStartedAt());
+    }
+
+    @Test
+    @org.junit.jupiter.api.DisplayName("cancel: 존재하지 않는 orderId면 IllegalArgumentException이 발생한다")
+    void cancelUnknownOrderThrowsException() {
+        assertThrows(IllegalArgumentException.class,
+            () -> productionService.cancel("NOT_EXIST"));
+    }
 }
