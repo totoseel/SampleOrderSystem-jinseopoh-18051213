@@ -17,8 +17,7 @@ public class ProductionController {
             productionService.getCurrent(),
             productionService.getProgress(),
             productionService.getCurrent()
-                .flatMap(productionService::getEstimatedFinishAt)
-                .orElse(null),
+                .flatMap(productionService::getEstimatedFinishAt),
             productionService.getQueue()
         );
     }

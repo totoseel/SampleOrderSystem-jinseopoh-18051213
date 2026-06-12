@@ -47,8 +47,8 @@ public class ConsoleView implements View {
     @Override
     public void showMenu(List<String> options) {
         out.println("[메뉴]");
-        for (int i = 0; i < options.size(); i++) {
-            out.printf("  %d. %s%n", i + 1, options.get(i));
+        for (String option : options) {
+            out.printf("  %s%n", option);
         }
     }
 
@@ -73,7 +73,7 @@ public class ConsoleView implements View {
     @Override
     public void showProductionStatus(Optional<ProductionEntry> current,
                                      double progress,
-                                     LocalDateTime estimatedFinish,
+                                     Optional<LocalDateTime> estimatedFinish,
                                      List<ProductionEntry> queue) {
         out.println("=== 생산라인 현황 ===");
         out.println("[현재 생산 중]");
@@ -82,9 +82,8 @@ public class ConsoleView implements View {
             out.printf("  주문번호 : %s%n", e.getOrderId());
             out.printf("  시료명   : %s%n", e.getSampleId());
             out.printf("  진행률   : %.1f%%%n", progress);
-            if (estimatedFinish != null) {
-                out.printf("  완료 예정: %s%n", estimatedFinish.format(FORMATTER));
-            }
+            estimatedFinish.ifPresent(dt ->
+                out.printf("  완료 예정: %s%n", dt.format(FORMATTER)));
         } else {
             out.println("  생산 없음");
         }

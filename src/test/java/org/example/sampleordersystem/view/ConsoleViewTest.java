@@ -58,17 +58,17 @@ class ConsoleViewTest {
     }
 
     @Test
-    @DisplayName("showMenu는 메뉴 항목을 번호와 함께 출력한다")
+    @DisplayName("showMenu는 전달받은 문자열 목록을 그대로 출력한다")
     void consoleViewRendersMenu() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ConsoleView view = viewWith("", out);
 
-        view.showMenu(List.of("시료 등록", "주문 접수", "종료"));
+        view.showMenu(List.of("1. 시료 등록", "2. 주문 접수", "0. 종료"));
 
         String output = out.toString();
-        assertTrue(output.contains("1"));
-        assertTrue(output.contains("시료 등록"));
-        assertTrue(output.contains("종료"));
+        assertTrue(output.contains("1. 시료 등록"));
+        assertTrue(output.contains("2. 주문 접수"));
+        assertTrue(output.contains("0. 종료"));
     }
 
     @Test
@@ -113,7 +113,7 @@ class ConsoleViewTest {
         view.showProductionStatus(
             Optional.of(entry),
             45.3,
-            LocalDateTime.of(2024, 1, 1, 11, 0),
+            Optional.of(LocalDateTime.of(2024, 1, 1, 11, 0)),
             List.of());
 
         String output = out.toString();
@@ -129,7 +129,7 @@ class ConsoleViewTest {
         ProductionEntry queued = new ProductionEntry(
             "ORD-20240101-0002", "S2", 3, 4, 20.0, null);
 
-        view.showProductionStatus(Optional.empty(), 0.0, null, List.of(queued));
+        view.showProductionStatus(Optional.empty(), 0.0, Optional.empty(), List.of(queued));
 
         String output = out.toString();
         assertTrue(output.contains("ORD-20240101-0002"));

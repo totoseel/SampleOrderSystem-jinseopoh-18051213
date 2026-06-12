@@ -31,7 +31,7 @@ class FakeView implements View {
     @Override public void showOrders(List<Order> orders) {}
     @Override public void showProductionStatus(Optional<ProductionEntry> current,
                                                double progress,
-                                               LocalDateTime estimatedFinish,
+                                               Optional<LocalDateTime> estimatedFinish,
                                                List<ProductionEntry> queue) {}
     @Override public void showMonitoringSummary(Map<OrderStatus, Long> counts,
                                                 List<Sample> samples,

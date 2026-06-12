@@ -20,7 +20,7 @@ public interface View {
     void showOrders(List<Order> orders);
     void showProductionStatus(Optional<ProductionEntry> current,
                               double progress,
-                              LocalDateTime estimatedFinish,
+                              Optional<LocalDateTime> estimatedFinish,
                               List<ProductionEntry> queue);
     void showMonitoringSummary(Map<OrderStatus, Long> statusCounts,
                                List<Sample> samples,
