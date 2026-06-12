@@ -35,7 +35,6 @@ class OrderControllerTest {
         sampleService = new SampleService(sampleRepo);
         orderService = new OrderService(sampleRepo, orderRepository, productionService, idGenerator);
 
-        // 시료 등록
         sampleService.register("S1", "갈륨비소", 5, 0.9, 100);
     }
 
@@ -51,31 +50,83 @@ class OrderControllerTest {
     }
 
     @Test
-    @DisplayName("RESERVED 주문 승인 시 해당 주문 상태가 변경된다")
-    void approveCallsService() {
-        // 주문 생성 후 승인 (재고 충분 케이스: stock=100, qty=10)
-        FakeView placeView = new FakeView("S1", "홍길동", "10");
-        OrderController controller = new OrderController(orderService, placeView);
+    @DisplayName("존재하지 않는 시료로 주문 접수 시 오류가 출력된다")
+    void placeOrderShowsErrorOnUnknownSample() {
+        FakeView view = new FakeView("UNKNOWN", "홍길동", "10");
+        OrderController controller = new OrderController(orderService, view);
+
         controller.handlePlace();
 
+        assertFalse(view.getErrors().isEmpty());
+    }
+
+    @Test
+    @DisplayName("RESERVED 주문 승인 시 해당 주문 상태가 변경된다")
+    void approveCallsService() {
+        FakeView placeView = new FakeView("S1", "홍길동", "10");
+        new OrderController(orderService, placeView).handlePlace();
+
         FakeView approveView = new FakeView("1");
-        OrderController approveController = new OrderController(orderService, approveView);
-        approveController.handleApprove();
+        new OrderController(orderService, approveView).handleApprove();
 
         assertEquals(OrderStatus.CONFIRMED, orderService.findAll().get(0).getStatus());
+    }
+
+    @Test
+    @DisplayName("RESERVED 주문이 없을 때 승인 시 안내 메시지가 출력된다")
+    void approveShowsMessageWhenNoReserved() {
+        FakeView view = new FakeView();
+        OrderController controller = new OrderController(orderService, view);
+
+        controller.handleApprove();
+
+        assertTrue(view.getMessages().stream().anyMatch(m -> m.contains("없습니다")));
+    }
+
+    @Test
+    @DisplayName("승인 번호가 범위를 벗어나면 오류가 출력된다")
+    void approveShowsErrorOnOutOfRangeIndex() {
+        FakeView placeView = new FakeView("S1", "홍길동", "10");
+        new OrderController(orderService, placeView).handlePlace();
+
+        FakeView approveView = new FakeView("99");
+        new OrderController(orderService, approveView).handleApprove();
+
+        assertFalse(approveView.getErrors().isEmpty());
     }
 
     @Test
     @DisplayName("RESERVED 주문 거절 시 해당 주문 상태가 REJECTED로 변경된다")
     void rejectCallsService() {
         FakeView placeView = new FakeView("S1", "홍길동", "10");
-        OrderController controller = new OrderController(orderService, placeView);
-        controller.handlePlace();
+        new OrderController(orderService, placeView).handlePlace();
 
         FakeView rejectView = new FakeView("1");
-        OrderController rejectController = new OrderController(orderService, rejectView);
-        rejectController.handleReject();
+        new OrderController(orderService, rejectView).handleReject();
 
         assertEquals(OrderStatus.REJECTED, orderService.findAll().get(0).getStatus());
+    }
+
+    @Test
+    @DisplayName("RESERVED 주문이 없을 때 거절 시 안내 메시지가 출력된다")
+    void rejectShowsMessageWhenNoReserved() {
+        FakeView view = new FakeView();
+        OrderController controller = new OrderController(orderService, view);
+
+        controller.handleReject();
+
+        assertTrue(view.getMessages().stream().anyMatch(m -> m.contains("없습니다")));
+    }
+
+    @Test
+    @DisplayName("거절 번호가 범위를 벗어나면 오류가 출력된다")
+    void rejectShowsErrorOnOutOfRangeIndex() {
+        FakeView placeView = new FakeView("S1", "홍길동", "10");
+        new OrderController(orderService, placeView).handlePlace();
+
+        FakeView rejectView = new FakeView("0");
+        new OrderController(orderService, rejectView).handleReject();
+
+        assertFalse(rejectView.getErrors().isEmpty());
     }
 }
