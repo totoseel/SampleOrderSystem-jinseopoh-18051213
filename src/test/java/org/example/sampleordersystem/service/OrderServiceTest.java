@@ -2,6 +2,7 @@ package org.example.sampleordersystem.service;
 
 import org.example.sampleordersystem.model.Order;
 import org.example.sampleordersystem.model.OrderStatus;
+import java.time.LocalDateTime;
 import org.example.sampleordersystem.repository.InMemoryOrderRepository;
 import org.example.sampleordersystem.repository.InMemoryProductionRepository;
 import org.example.sampleordersystem.repository.InMemorySampleRepository;
@@ -106,5 +107,36 @@ class OrderServiceTest {
         orderService.placeOrder("S001", "홍길동", 10);
         orderService.placeOrder("S001", "김철수", 5);
         assertEquals(2, orderService.findAll().size());
+    }
+
+    @Test
+    void approve_존재하지않는주문_예외() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> orderService.approve("ORD-NONE"));
+        assertEquals("존재하지 않는 주문입니다", ex.getMessage());
+    }
+
+    @Test
+    void approve_시료없는주문_예외() {
+        // 주문을 직접 저장 후 시료를 삭제하는 상황 시뮬레이션 불가하므로
+        // 대신 InMemoryOrderRepository에 직접 저장하여 테스트
+        sampleService.register("S001", "웨이퍼", 30, 0.9, 100);
+        orderService.placeOrder("S001", "홍길동", 10);
+        String orderId = orderRepo.findAll().get(0).getOrderId();
+        // sampleRepo에서 시료를 직접 삭제하는 방법이 없으므로
+        // 대신 다른 sampleId로 주문된 상황을 만든다: 직접 Order를 저장
+        Order orphanOrder = new Order("ORD-99990101-9999", "DELETED_SAMPLE", "테스트", 5,
+            LocalDateTime.of(2024, 1, 1, 0, 0));
+        orderRepo.save(orphanOrder);
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+            () -> orderService.approve("ORD-99990101-9999"));
+        assertEquals("시료를 찾을 수 없습니다", ex.getMessage());
+    }
+
+    @Test
+    void reject_존재하지않는주문_예외() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> orderService.reject("ORD-NONE"));
+        assertEquals("존재하지 않는 주문입니다", ex.getMessage());
     }
 }
