@@ -85,9 +85,11 @@ int shortage = Math.max(0, order.getQuantity() - sample.getStock());
    - 승인 후 테스트를 작성하고 `./gradlew test --tests "..."` 로 실패를 직접 확인한다
    - 즉시 통과하거나 컴파일 오류가 나면 테스트를 수정한 뒤 다시 실패를 확인한다
 
-2. **🟢 GREEN — 최소 구현 → 통과 확인**
+2. **🟢 GREEN — 최소 구현 → 통과 확인 → 커밋**
    - 테스트를 통과시킬 가장 단순한 코드만 작성한다 (YAGNI)
    - `./gradlew test` 로 신규 테스트·기존 테스트 모두 통과를 확인한다
+   - 통과 즉시 커밋한다. 커밋 전 REVIEW나 다음 사이클로 넘어가지 않는다
+   - 커밋 메시지 형식: `test(phaseN): [테스트명] RED → GREEN`
 
 3. **✅ REVIEW — 자가 검토 후 Orchestrator 검토 요청**
    - 중복 제거·이름 개선·헬퍼 추출 등 리팩터링을 수행한다 (동작 추가 금지)
