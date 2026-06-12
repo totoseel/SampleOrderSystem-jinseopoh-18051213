@@ -41,11 +41,17 @@ PRD·PLAN을 기준으로 현재 페이즈의 요구사항을 분석하고 구�
 ```
 [1] Orchestrator → 현재 페이즈 요구사항 분석 → 구현 지시서 생성
 [2] SubAgent1    → 문서 정합성 확인 (지시서와 PRD/PLAN 일치 여부)
-[3] SubAgent2    → 코드 구현
+[3] SubAgent2    → TDD 사이클로 코드 구현 (RED → GREEN → REVIEW 반복)
+                   ※ 각 RED 계획 및 REVIEW 완료 시 Orchestrator 검토·승인 필수
 [4] SubAgent3    → 테스트 실행 및 커버리지 검증
 [5] SubAgent4    → 아키텍처·규칙 준수 검증
 [6] Orchestrator → 모든 검증 통과 시 다음 페이즈 진행 / 실패 시 [3]으로 복귀
 ```
+
+> **Orchestrator의 TDD 검토 책임**  
+> SubAgent2가 RED 계획(Plan.md)을 제출하면 시나리오·범위·요구사항 정합성을 검토하고 승인 또는 수정 지시를 내린다.  
+> SubAgent2가 REVIEW 완료를 보고하면 구현 요약을 확인하고 다음 사이클 진입을 승인한다.  
+> 승인 없이 SubAgent2가 단계를 넘어가는 것을 허용하지 않는다.
 
 ---
 
