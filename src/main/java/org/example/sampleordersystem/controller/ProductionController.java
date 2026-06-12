@@ -23,10 +23,11 @@ public class ProductionController {
                 .flatMap(productionService::getEstimatedFinishAt),
             productionService.getQueue()
         );
-        view.showMenu(List.of("1. 취소", "0. 돌아가기"));
+        view.showMenu(List.of("1. 새로고침", "2. 취소", "0. 돌아가기"));
         String input = view.readLine();
         switch (input) {
-            case "1" -> handleCancel();
+            case "1" -> handleView();
+            case "2" -> handleCancel();
             case "0" -> {}
             default -> view.showError("올바른 메뉴 번호를 입력하세요");
         }

@@ -44,6 +44,15 @@ class ProductionControllerTest {
     }
 
     @Test
+    @DisplayName("handleView에서 '1' 새로고침 선택 시 화면을 다시 출력하고 '0'으로 돌아간다")
+    void handleViewRefreshShowsStatusAgain() {
+        FakeView view = new FakeView("1", "0");
+        ProductionController controller = new ProductionController(productionService, view);
+
+        assertDoesNotThrow(controller::handleView);
+    }
+
+    @Test
     @DisplayName("handleView에서 잘못된 메뉴 입력 시 오류 메시지를 출력한다")
     void handleViewInvalidMenuShowsError() {
         FakeView view = new FakeView("9");
@@ -57,7 +66,7 @@ class ProductionControllerTest {
     @Test
     @DisplayName("handleView에서 취소 선택 시 큐가 비어있으면 안내 메시지를 출력한다")
     void handleViewCancelWithEmptyQueueShowsMessage() {
-        FakeView view = new FakeView("1");
+        FakeView view = new FakeView("2");
         ProductionController controller = new ProductionController(productionService, view);
 
         controller.handleView();
@@ -74,7 +83,7 @@ class ProductionControllerTest {
         orderRepo.save(order);
         productionService.enqueue(new ProductionEntry("ORD-001", "S1", 5, 7, 210.0, null));
 
-        FakeView view = new FakeView("1", "1");
+        FakeView view = new FakeView("2", "1");
         ProductionController controller = new ProductionController(productionService, view);
 
         controller.handleView();
@@ -92,7 +101,7 @@ class ProductionControllerTest {
         orderRepo.save(order);
         productionService.enqueue(new ProductionEntry("ORD-001", "S1", 5, 7, 210.0, null));
 
-        FakeView view = new FakeView("1", "99");
+        FakeView view = new FakeView("2", "99");
         ProductionController controller = new ProductionController(productionService, view);
 
         controller.handleView();
@@ -109,7 +118,7 @@ class ProductionControllerTest {
         orderRepo.save(order);
         productionService.enqueue(new ProductionEntry("ORD-001", "S1", 5, 7, 210.0, null));
 
-        FakeView view = new FakeView("1", "0");
+        FakeView view = new FakeView("2", "0");
         ProductionController controller = new ProductionController(productionService, view);
 
         controller.handleView();
@@ -126,7 +135,7 @@ class ProductionControllerTest {
         orderRepo.save(order);
         productionService.enqueue(new ProductionEntry("ORD-001", "S1", 5, 7, 210.0, null));
 
-        FakeView view = new FakeView("1", "abc");
+        FakeView view = new FakeView("2", "abc");
         ProductionController controller = new ProductionController(productionService, view);
 
         controller.handleView();
@@ -151,7 +160,7 @@ class ProductionControllerTest {
             }
         };
 
-        FakeView view = new FakeView("1", "1");
+        FakeView view = new FakeView("2", "1");
         ProductionController controller = new ProductionController(throwingService, view);
 
         controller.handleView();
