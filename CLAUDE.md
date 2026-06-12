@@ -79,12 +79,22 @@ RESERVED → 승인 → 재고 충분 → CONFIRMED → RELEASE
 | 부족 | 주문 대비 재고 수량 부족 |
 | 고갈 | 재고 수량 = 0 |
 
+### 시료 등록 입력값
+시료 ID, 이름, 평균 생산시간(분), 수율(`0 < yield ≤ 1`), **초기 재고 수량**(0 이상 정수)
+
 ### 주문번호 형식
-`ORD-YYYYMMDD-NNNN`
+`ORD-YYYYMMDD-NNNN` — 당일 순번 4자리, 재시작 후에도 순번 유지
+
+### 메인 화면 현황 요약 항목
+등록 시료 수 / 총 재고 수량 / 전체 주문 수 / 생산라인 대기 수 / 현재 생산 중인 시료 / CONFIRMED 주문 수
+
+## 문서
+
+- `docs/project-summary.md` — 시스템 배경·기능 개요
+- `docs/PRD.md` — 기능·비기능 요구사항 상세, 미결 사항(TBD) 포함
 
 ## 코드 규칙
 
-- `Main.java`는 의존성 조립만 담당, 로직 없음.
 - `View`는 출력만, `Controller`는 입력 검증 후 Service/Repository 위임.
 - `Service` 레이어가 재고 판단·생산라인 등록 등 핵심 비즈니스 로직을 담당.
 - JaCoCo 커버리지: `Main.class` 제외, 나머지 **100% instruction coverage** 강제.
