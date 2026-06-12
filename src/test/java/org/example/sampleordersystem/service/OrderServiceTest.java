@@ -56,4 +56,15 @@ class OrderServiceTest {
             () -> orderService.placeOrder("NONE", "홍길동", 10));
         assertEquals("등록되지 않은 시료입니다", ex.getMessage());
     }
+
+    @Test
+    void approve_재고충분_CONFIRMED() {
+        sampleService.register("S001", "웨이퍼", 30, 0.9, 100);
+        orderService.placeOrder("S001", "홍길동", 10);
+        String orderId = orderRepo.findAll().get(0).getOrderId();
+        orderService.approve(orderId);
+        Order approved = orderRepo.findById(orderId).get();
+        assertEquals(OrderStatus.CONFIRMED, approved.getStatus());
+        assertEquals(90, sampleRepo.findById("S001").get().getStock());
+    }
 }
