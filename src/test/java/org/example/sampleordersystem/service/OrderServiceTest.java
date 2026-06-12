@@ -78,4 +78,33 @@ class OrderServiceTest {
         assertEquals(OrderStatus.PRODUCING, approved.getStatus());
         assertEquals(1, prodRepo.findAll().size());
     }
+
+    @Test
+    void reject_REJECTED전환() {
+        sampleService.register("S001", "웨이퍼", 30, 0.9, 100);
+        orderService.placeOrder("S001", "홍길동", 10);
+        String orderId = orderRepo.findAll().get(0).getOrderId();
+        orderService.reject(orderId);
+        Order rejected = orderRepo.findById(orderId).get();
+        assertEquals(OrderStatus.REJECTED, rejected.getStatus());
+    }
+
+    @Test
+    void findByStatus_RESERVED주문조회() {
+        sampleService.register("S001", "웨이퍼", 30, 0.9, 100);
+        orderService.placeOrder("S001", "홍길동", 10);
+        orderService.placeOrder("S001", "김철수", 5);
+        String firstOrderId = orderRepo.findAll().get(0).getOrderId();
+        orderService.approve(firstOrderId);
+        assertEquals(1, orderService.findByStatus(OrderStatus.RESERVED).size());
+        assertEquals(1, orderService.findByStatus(OrderStatus.CONFIRMED).size());
+    }
+
+    @Test
+    void findAll_전체주문조회() {
+        sampleService.register("S001", "웨이퍼", 30, 0.9, 100);
+        orderService.placeOrder("S001", "홍길동", 10);
+        orderService.placeOrder("S001", "김철수", 5);
+        assertEquals(2, orderService.findAll().size());
+    }
 }
