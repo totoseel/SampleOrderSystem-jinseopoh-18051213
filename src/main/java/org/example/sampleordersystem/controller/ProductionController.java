@@ -16,6 +16,7 @@ public class ProductionController {
     }
 
     public void handleView() {
+        productionService.tick();
         view.showProductionStatus(
             productionService.getCurrent(),
             productionService.getProgress(),
