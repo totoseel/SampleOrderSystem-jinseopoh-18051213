@@ -67,4 +67,15 @@ class OrderServiceTest {
         assertEquals(OrderStatus.CONFIRMED, approved.getStatus());
         assertEquals(90, sampleRepo.findById("S001").get().getStock());
     }
+
+    @Test
+    void approve_재고부족_PRODUCING() {
+        sampleService.register("S001", "웨이퍼", 30, 0.9, 5);
+        orderService.placeOrder("S001", "홍길동", 10);
+        String orderId = orderRepo.findAll().get(0).getOrderId();
+        orderService.approve(orderId);
+        Order approved = orderRepo.findById(orderId).get();
+        assertEquals(OrderStatus.PRODUCING, approved.getStatus());
+        assertEquals(1, prodRepo.findAll().size());
+    }
 }

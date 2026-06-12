@@ -32,7 +32,7 @@ public class ProductionService {
     }
 
     public void enqueue(ProductionEntry entry) {
-        // 그룹 B에서 구현
+        productionRepository.save(entry);
     }
 
     public void tick() {
