@@ -50,8 +50,15 @@ org.example.sampleordersystem
 ├── service/        # 비즈니스 로직 (재고 판단, 생산라인 스케줄링 등)
 ├── controller/     # 입력 검증 → Service 호출 → View 통지
 ├── view/           # 인터페이스 + ConsoleView 구현체 (출력 전담)
+├── util/           # TimeProvider(인터페이스), SystemTimeProvider, OrderIdGenerator
 ├── app/            # App.java — 메뉴 루프 진입점
 └── Main.java       # main() — 의존성 조립 후 App.run() 호출
+```
+
+App 생성자:
+```
+App(SampleController, OrderController, ProductionController,
+    MonitoringController, ProductionService, SampleService, OrderService, View)
 ```
 
 `Main`은 JaCoCo 커버리지 측정에서 제외한다.

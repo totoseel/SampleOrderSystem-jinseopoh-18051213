@@ -339,7 +339,7 @@ showSamples(List<Sample> samples)
 showOrders(List<Order> orders)
 showProductionStatus(Optional<ProductionEntry> current, double progress,
                      LocalDateTime estimatedFinish, List<ProductionEntry> queue)
-showMonitoringSummary(Map<OrderStatus, Long> statusCounts, List<Sample> samples)
+showMonitoringSummary(Map<OrderStatus, Long> statusCounts, List<Sample> samples, Set<String> producingSampleIds)
 showMessage(String message)
 showError(String message)
 readLine() → String
@@ -403,7 +403,7 @@ handleView()       → 상태별 주문 수 + 시료별 재고 → View.showMoni
 #### `App`
 ```
 생성자: App(SampleController, OrderController, ProductionController,
-            MonitoringController, ProductionService, View)
+            MonitoringController, ProductionService, SampleService, OrderService, View)
 
 run()
   → 루프:
