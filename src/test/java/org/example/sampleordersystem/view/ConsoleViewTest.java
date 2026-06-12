@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -144,7 +145,8 @@ class ConsoleViewTest {
 
         view.showMonitoringSummary(
             Map.of(OrderStatus.RESERVED, 2L),
-            List.of(sample));
+            List.of(sample),
+            Set.of());
 
         String output = out.toString();
         assertTrue(output.contains("RESERVED"));
@@ -159,10 +161,23 @@ class ConsoleViewTest {
         ConsoleView view = viewWith("", out);
         Sample sample = new Sample("S1", "웨이퍼", 10, 0.8, 50);
 
-        view.showMonitoringSummary(Map.of(), List.of(sample));
+        view.showMonitoringSummary(Map.of(), List.of(sample), Set.of());
 
         String output = out.toString();
         assertTrue(output.contains("여유"));
+    }
+
+    @Test
+    @DisplayName("showMonitoringSummary는 PRODUCING 중인 시료를 부족으로 표시한다")
+    void consoleViewRendersMonitoringSummaryWithProducingStock() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ConsoleView view = viewWith("", out);
+        Sample sample = new Sample("S1", "웨이퍼", 10, 0.8, 30);
+
+        view.showMonitoringSummary(Map.of(OrderStatus.PRODUCING, 1L), List.of(sample), Set.of("S1"));
+
+        String output = out.toString();
+        assertTrue(output.contains("부족"));
     }
 
     @Test

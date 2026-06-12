@@ -129,4 +129,39 @@ class OrderControllerTest {
 
         assertFalse(rejectView.getErrors().isEmpty());
     }
+
+    @Test
+    @DisplayName("수량에 숫자가 아닌 값 입력 시 오류 메시지를 출력한다")
+    void placeOrderShowsErrorOnInvalidNumber() {
+        FakeView view = new FakeView("S1", "홍길동", "abc");
+        OrderController controller = new OrderController(orderService, view);
+
+        controller.handlePlace();
+
+        assertFalse(view.getErrors().isEmpty());
+    }
+
+    @Test
+    @DisplayName("승인 번호에 숫자가 아닌 값 입력 시 오류 메시지를 출력한다")
+    void approveShowsErrorOnInvalidNumber() {
+        FakeView placeView = new FakeView("S1", "홍길동", "10");
+        new OrderController(orderService, placeView).handlePlace();
+
+        FakeView approveView = new FakeView("abc");
+        new OrderController(orderService, approveView).handleApprove();
+
+        assertFalse(approveView.getErrors().isEmpty());
+    }
+
+    @Test
+    @DisplayName("거절 번호에 숫자가 아닌 값 입력 시 오류 메시지를 출력한다")
+    void rejectShowsErrorOnInvalidNumber() {
+        FakeView placeView = new FakeView("S1", "홍길동", "10");
+        new OrderController(orderService, placeView).handlePlace();
+
+        FakeView rejectView = new FakeView("abc");
+        new OrderController(orderService, rejectView).handleReject();
+
+        assertFalse(rejectView.getErrors().isEmpty());
+    }
 }

@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 public interface View {
     void showMainSummary(int sampleCount, int totalStock, int orderCount,
@@ -22,7 +23,8 @@ public interface View {
                               LocalDateTime estimatedFinish,
                               List<ProductionEntry> queue);
     void showMonitoringSummary(Map<OrderStatus, Long> statusCounts,
-                               List<Sample> samples);
+                               List<Sample> samples,
+                               Set<String> producingSampleIds);
     void showMessage(String message);
     void showError(String message);
     String readLine();

@@ -22,11 +22,14 @@ public class OrderController {
         view.showMessage("고객명 입력:");
         String customerName = view.readLine();
         view.showMessage("수량 입력:");
-        int quantity = Integer.parseInt(view.readLine());
+        String quantityStr = view.readLine();
 
         try {
+            int quantity = Integer.parseInt(quantityStr);
             orderService.placeOrder(sampleId, customerName, quantity);
             view.showMessage("주문이 접수되었습니다.");
+        } catch (NumberFormatException e) {
+            view.showError("숫자 형식이 올바르지 않습니다: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             view.showError(e.getMessage());
         }
@@ -40,13 +43,17 @@ public class OrderController {
         }
         view.showOrders(reserved);
         view.showMessage("승인할 주문 번호 입력:");
-        int index = Integer.parseInt(view.readLine()) - 1;
-        if (index < 0 || index >= reserved.size()) {
-            view.showError("올바른 번호를 입력하세요.");
-            return;
+        try {
+            int index = Integer.parseInt(view.readLine()) - 1;
+            if (index < 0 || index >= reserved.size()) {
+                view.showError("올바른 번호를 입력하세요.");
+                return;
+            }
+            orderService.approve(reserved.get(index).getOrderId());
+            view.showMessage("주문이 승인되었습니다.");
+        } catch (NumberFormatException e) {
+            view.showError("숫자 형식이 올바르지 않습니다: " + e.getMessage());
         }
-        orderService.approve(reserved.get(index).getOrderId());
-        view.showMessage("주문이 승인되었습니다.");
     }
 
     public void handleReject() {
@@ -57,12 +64,16 @@ public class OrderController {
         }
         view.showOrders(reserved);
         view.showMessage("거절할 주문 번호 입력:");
-        int index = Integer.parseInt(view.readLine()) - 1;
-        if (index < 0 || index >= reserved.size()) {
-            view.showError("올바른 번호를 입력하세요.");
-            return;
+        try {
+            int index = Integer.parseInt(view.readLine()) - 1;
+            if (index < 0 || index >= reserved.size()) {
+                view.showError("올바른 번호를 입력하세요.");
+                return;
+            }
+            orderService.reject(reserved.get(index).getOrderId());
+            view.showMessage("주문이 거절되었습니다.");
+        } catch (NumberFormatException e) {
+            view.showError("숫자 형식이 올바르지 않습니다: " + e.getMessage());
         }
-        orderService.reject(reserved.get(index).getOrderId());
-        view.showMessage("주문이 거절되었습니다.");
     }
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.Set;
 
 public class ConsoleView implements View {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -96,7 +97,9 @@ public class ConsoleView implements View {
     }
 
     @Override
-    public void showMonitoringSummary(Map<OrderStatus, Long> statusCounts, List<Sample> samples) {
+    public void showMonitoringSummary(Map<OrderStatus, Long> statusCounts,
+                                      List<Sample> samples,
+                                      Set<String> producingSampleIds) {
         out.println("=== 모니터링 ===");
         out.println("[주문량 현황]");
         OrderStatus[] order = {OrderStatus.RESERVED, OrderStatus.PRODUCING,
@@ -106,7 +109,14 @@ public class ConsoleView implements View {
         }
         out.println("[재고량 현황]");
         for (Sample s : samples) {
-            String label = s.getStock() == 0 ? "고갈" : "여유";
+            String label;
+            if (s.getStock() == 0) {
+                label = "고갈";
+            } else if (producingSampleIds.contains(s.getId())) {
+                label = "부족";
+            } else {
+                label = "여유";
+            }
             out.printf("  %-15s | 재고: %-5d | 상태: %s%n", s.getName(), s.getStock(), label);
         }
     }

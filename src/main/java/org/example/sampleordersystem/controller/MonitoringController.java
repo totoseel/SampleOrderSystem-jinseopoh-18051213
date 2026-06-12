@@ -7,6 +7,7 @@ import org.example.sampleordersystem.service.SampleService;
 import org.example.sampleordersystem.view.View;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MonitoringController {
@@ -24,6 +25,9 @@ public class MonitoringController {
         Map<OrderStatus, Long> counts = orderService.findAll().stream()
             .filter(o -> o.getStatus() != OrderStatus.REJECTED)
             .collect(Collectors.groupingBy(Order::getStatus, Collectors.counting()));
-        view.showMonitoringSummary(counts, sampleService.findAll());
+        Set<String> producingSampleIds = orderService.findByStatus(OrderStatus.PRODUCING).stream()
+            .map(Order::getSampleId)
+            .collect(Collectors.toSet());
+        view.showMonitoringSummary(counts, sampleService.findAll(), producingSampleIds);
     }
 }

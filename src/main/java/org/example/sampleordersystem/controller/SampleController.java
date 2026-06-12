@@ -18,15 +18,20 @@ public class SampleController {
         view.showMessage("시료 이름 입력:");
         String name = view.readLine();
         view.showMessage("평균 생산시간(분) 입력:");
-        int avgMin = Integer.parseInt(view.readLine());
+        String avgMinStr = view.readLine();
         view.showMessage("수율(0 초과 1 이하) 입력:");
-        double yield = Double.parseDouble(view.readLine());
+        String yieldStr = view.readLine();
         view.showMessage("초기 재고 수량 입력:");
-        int stock = Integer.parseInt(view.readLine());
+        String stockStr = view.readLine();
 
         try {
+            int avgMin = Integer.parseInt(avgMinStr);
+            double yield = Double.parseDouble(yieldStr);
+            int stock = Integer.parseInt(stockStr);
             sampleService.register(id, name, avgMin, yield, stock);
             view.showMessage("시료가 등록되었습니다.");
+        } catch (NumberFormatException e) {
+            view.showError("숫자 형식이 올바르지 않습니다: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             view.showError(e.getMessage());
         }

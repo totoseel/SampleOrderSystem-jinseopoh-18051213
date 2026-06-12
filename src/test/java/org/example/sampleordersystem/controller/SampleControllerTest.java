@@ -59,4 +59,15 @@ class SampleControllerTest {
 
         assertDoesNotThrow(controller::handleSearch);
     }
+
+    @Test
+    @DisplayName("평균 생산시간에 숫자가 아닌 값 입력 시 오류 메시지를 출력한다")
+    void registerSampleShowsErrorOnInvalidNumber() {
+        FakeView view = new FakeView("S1", "갈륨비소", "abc", "0.9", "100");
+        SampleController controller = new SampleController(service, view);
+
+        controller.handleRegister();
+
+        assertFalse(view.getErrors().isEmpty());
+    }
 }

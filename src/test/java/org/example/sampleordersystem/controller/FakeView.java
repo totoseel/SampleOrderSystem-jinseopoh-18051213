@@ -33,7 +33,9 @@ class FakeView implements View {
                                                double progress,
                                                LocalDateTime estimatedFinish,
                                                List<ProductionEntry> queue) {}
-    @Override public void showMonitoringSummary(Map<OrderStatus, Long> counts, List<Sample> samples) {
+    @Override public void showMonitoringSummary(Map<OrderStatus, Long> counts,
+                                                List<Sample> samples,
+                                                java.util.Set<String> producingSampleIds) {
         this.capturedCounts = counts;
         this.capturedSamples = samples;
     }
