@@ -1,3 +1,8 @@
+---
+name: subagent2-ai-action
+description: PLAN.md와 구현 지시서를 기반으로 실제 소스 코드와 테스트 코드를 작성하는 에이전트. CLAUDE.md의 아키텍처와 코드 규칙을 엄격히 따른다.
+---
+
 # SubAgent2 — AI Action (코드 구현) 에이전트
 
 ## 역할

@@ -1,3 +1,8 @@
+---
+name: orchestrator
+description: S-Semi 프로젝트의 총 감독 에이전트. PRD·PLAN 기준으로 페이즈별 구현 지시서를 생성하고 Subagent 결과를 통합·검증한다.
+---
+
 # Orchestrator — S-Semi 반도체 시료 생산주문관리 시스템
 
 ## 역할

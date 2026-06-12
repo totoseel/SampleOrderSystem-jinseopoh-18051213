@@ -1,3 +1,8 @@
+---
+name: subagent3-test-verify
+description: 테스트를 실행하고 JaCoCo 커버리지를 검증하는 에이전트. 실패 원인을 분석해 SubAgent2에게 피드백을 전달하며 코드는 직접 수정하지 않는다.
+---
+
 # SubAgent3 — Test Verify (테스트 검증) 에이전트
 
 ## 역할

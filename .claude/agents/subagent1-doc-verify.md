@@ -1,3 +1,8 @@
+---
+name: subagent1-doc-verify
+description: PRD·PLAN·CLAUDE.md·소스 코드 사이의 일관성을 검증하는 에이전트. 불일치를 보고서로 작성하며 코드는 수정하지 않는다.
+---
+
 # SubAgent1 — 문서 정합성 검증 에이전트
 
 ## 역할
