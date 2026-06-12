@@ -53,4 +53,16 @@ class SampleTest {
         sample.increaseStock(30);
         assertEquals(80, sample.getStock());
     }
+
+    @Test
+    @DisplayName("모든 필드를 올바르게 저장하고 반환한다")
+    void sampleStoresAllFields() {
+        Sample sample = new Sample("S1", "갈륨비소", 10, 0.9, 100);
+
+        assertEquals("S1", sample.getId());
+        assertEquals("갈륨비소", sample.getName());
+        assertEquals(10, sample.getAvgProductionMinutes());
+        assertEquals(0.9, sample.getYield());
+        assertEquals(100, sample.getStock());
+    }
 }
