@@ -81,8 +81,7 @@ class FullFlowIntegrationTest {
         assertEquals(OrderStatus.CONFIRMED, approved.getStatus());
         assertEquals(90, sampleRepo.findById("S1").orElseThrow().getStock());
 
-        approved.transitionTo(OrderStatus.RELEASE);
-        orderRepo.save(approved);
+        orderService.releaseOrder(order.getOrderId());
         assertEquals(OrderStatus.RELEASE,
             orderRepo.findById(order.getOrderId()).orElseThrow().getStatus());
     }
@@ -133,7 +132,7 @@ class FullFlowIntegrationTest {
     }
 
     @Test
-    @DisplayName("timeScale=60 적용 시 실제 14분 경과로 780분 생산이 완료된다")
+    @DisplayName("780분 생산이 13분(timeScale=60) 내 완료된다")
     void timeScaleAccelerates() {
         // stock=0, qty=10, yield=0.9
         // shortage=10, actualQty=ceil(10/(0.9*0.9))=ceil(10/0.81)=ceil(12.35)=13
@@ -149,7 +148,7 @@ class FullFlowIntegrationTest {
             sampleRepo, orderRepo, fastService, idGen);
         fastOrderService.approve(order.getOrderId());
 
-        timeProvider.setTime(LocalDateTime.of(2024, 1, 1, 9, 14)); // 14분 경과
+        timeProvider.setTime(LocalDateTime.of(2024, 1, 1, 9, 13, 1)); // 13분 직후 경과 (공식상 완료 임계)
         fastService.tick();
 
         assertEquals(OrderStatus.CONFIRMED,

@@ -213,7 +213,7 @@ void rejectedExcludedFromMonitoring() {
         .collect(Collectors.groupingBy(Order::getStatus, Collectors.counting()));
 
     assertFalse(counts.containsKey(OrderStatus.REJECTED));
-    assertEquals(2L, counts.getOrDefault(OrderStatus.RESERVED, 0L));
+    assertEquals(1L, counts.getOrDefault(OrderStatus.RESERVED, 0L));
 }
 ```
 
