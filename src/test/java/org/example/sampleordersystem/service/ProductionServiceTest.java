@@ -86,11 +86,12 @@ class ProductionServiceTest {
         ProductionEntry second = new ProductionEntry("ORD-002", "S001", 3, 4, 120.0, null);
         productionService.enqueue(first);
         productionService.enqueue(second);
-        List<ProductionEntry> queue = productionService.getQueue();
-        assertEquals(2, queue.size());
-        // 첫 번째는 시작됨, 두 번째는 대기 중(startedAt null)
-        assertNotNull(queue.get(0).getStartedAt());
-        assertNull(queue.get(1).getStartedAt());
+        // getQueue()는 대기 항목만 반환, getCurrent()는 현재 생산 중 항목 반환
+        List<ProductionEntry> waiting = productionService.getQueue();
+        assertEquals(1, waiting.size());
+        assertNull(waiting.get(0).getStartedAt());
+        assertTrue(productionService.getCurrent().isPresent());
+        assertNotNull(productionService.getCurrent().get().getStartedAt());
     }
 
     // Cycle 3-10: 시간이 충분히 지나지 않으면 tick() 후에도 상태가 유지된다
@@ -301,8 +302,10 @@ class ProductionServiceTest {
 
         productionService.cancel("ORD-002");
 
-        assertEquals(1, productionService.getQueue().size());
-        assertEquals("ORD-001", productionService.getQueue().get(0).getOrderId());
+        // ORD-002 취소 후: 대기 큐는 비어 있고(ORD-001은 현재 생산 중), ORD-002는 RESERVED 복원
+        assertEquals(0, productionService.getQueue().size());
+        assertTrue(productionService.getCurrent().isPresent());
+        assertEquals("ORD-001", productionService.getCurrent().get().getOrderId());
         assertEquals(OrderStatus.RESERVED, orderRepo.findById("ORD-002").get().getStatus());
     }
 

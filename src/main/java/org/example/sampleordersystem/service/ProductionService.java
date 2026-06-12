@@ -107,6 +107,12 @@ public class ProductionService {
     }
 
     public List<ProductionEntry> getQueue() {
+        return productionRepository.findAll().stream()
+            .filter(e -> e.getStartedAt() == null)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    public List<ProductionEntry> getAllEntries() {
         return productionRepository.findAll();
     }
 

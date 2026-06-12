@@ -34,7 +34,7 @@ public class ProductionController {
     }
 
     private void handleCancel() {
-        List<ProductionEntry> queue = productionService.getQueue();
+        List<ProductionEntry> queue = productionService.getAllEntries();
         if (queue.isEmpty()) {
             view.showMessage("취소할 생산 항목이 없습니다.");
             return;
