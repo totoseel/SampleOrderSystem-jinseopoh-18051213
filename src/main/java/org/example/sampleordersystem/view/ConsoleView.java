@@ -64,10 +64,15 @@ public class ConsoleView implements View {
     @Override
     public void showOrders(List<Order> orders) {
         out.println("[주문 목록]");
+        out.printf("  %-5s %-22s %-8s %-10s %-5s %-10s %s%n",
+            "번호", "주문번호", "시료ID", "고객명", "수량", "상태", "주문일시");
+        out.println("  " + "-".repeat(80));
         for (int i = 0; i < orders.size(); i++) {
             Order o = orders.get(i);
-            out.printf("  %d. %s | %s | %s | %d개%n",
-                i + 1, o.getOrderId(), o.getSampleId(), o.getStatus(), o.getQuantity());
+            out.printf("  %-5d %-22s %-8s %-10s %-5d %-10s %s%n",
+                i + 1, o.getOrderId(), o.getSampleId(), o.getCustomerName(),
+                o.getQuantity(), o.getStatus(),
+                o.getOrderedAt().format(FORMATTER));
         }
     }
 
