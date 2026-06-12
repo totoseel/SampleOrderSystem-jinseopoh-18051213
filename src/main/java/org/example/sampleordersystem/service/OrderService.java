@@ -75,6 +75,13 @@ public class OrderService {
         return orderRepository.findAll();
     }
 
+    public void releaseOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다"));
+        order.transitionTo(OrderStatus.RELEASE);
+        orderRepository.save(order);
+    }
+
     public List<Order> findByStatus(OrderStatus status) {
         return orderRepository.findByStatus(status);
     }

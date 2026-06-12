@@ -35,6 +35,38 @@ public class OrderController {
         }
     }
 
+    public void handleApproveOrReject() {
+        view.showMenu(java.util.List.of("1. 승인", "2. 거절", "0. 돌아가기"));
+        String input = view.readLine();
+        switch (input) {
+            case "1" -> handleApprove();
+            case "2" -> handleReject();
+            case "0" -> {}
+            default -> view.showError("올바른 메뉴 번호를 입력하세요");
+        }
+    }
+
+    public void handleRelease() {
+        java.util.List<Order> confirmed = orderService.findByStatus(OrderStatus.CONFIRMED);
+        if (confirmed.isEmpty()) {
+            view.showMessage("출고할 주문이 없습니다.");
+            return;
+        }
+        view.showOrders(confirmed);
+        view.showMessage("출고할 주문 번호 입력:");
+        try {
+            int index = Integer.parseInt(view.readLine()) - 1;
+            if (index < 0 || index >= confirmed.size()) {
+                view.showError("올바른 번호를 입력하세요.");
+                return;
+            }
+            orderService.releaseOrder(confirmed.get(index).getOrderId());
+            view.showMessage("출고 처리가 완료되었습니다.");
+        } catch (NumberFormatException e) {
+            view.showError("숫자 형식이 올바르지 않습니다: " + e.getMessage());
+        }
+    }
+
     public void handleApprove() {
         List<Order> reserved = orderService.findByStatus(OrderStatus.RESERVED);
         if (reserved.isEmpty()) {

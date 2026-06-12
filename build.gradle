@@ -46,6 +46,7 @@ jacocoTestReport {
 jacocoTestCoverageVerification {
     violationRules {
         rule {
+            element = 'CLASS'
             excludes = ['org.example.sampleordersystem.Main']
             limit {
                 counter = 'INSTRUCTION'

@@ -140,6 +140,25 @@ class OrderServiceTest {
     }
 
     @Test
+    void releaseOrder_CONFIRMED주문을_RELEASE로_전환() {
+        sampleService.register("S001", "웨이퍼", 30, 0.9, 100);
+        orderService.placeOrder("S001", "홍길동", 10);
+        String orderId = orderRepo.findAll().get(0).getOrderId();
+        orderService.approve(orderId);
+        assertEquals(OrderStatus.CONFIRMED, orderRepo.findById(orderId).get().getStatus());
+
+        orderService.releaseOrder(orderId);
+        assertEquals(OrderStatus.RELEASE, orderRepo.findById(orderId).get().getStatus());
+    }
+
+    @Test
+    void releaseOrder_존재하지않는주문_예외() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> orderService.releaseOrder("ORD-NONE"));
+        assertEquals("존재하지 않는 주문입니다", ex.getMessage());
+    }
+
+    @Test
     void approve_재고부족시_actualQty가_공식대로_계산됨() {
         // 재고 5, 주문 10, shortage=5, yield=0.9 → actualQty=ceil(5/(0.9*0.9))=ceil(6.17)=7
         sampleService.register("S001", "웨이퍼", 30, 0.9, 5);

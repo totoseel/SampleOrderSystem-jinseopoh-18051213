@@ -12,6 +12,18 @@ public class SampleController {
         this.view = view;
     }
 
+    public void handleSampleMenu() {
+        view.showMenu(java.util.List.of("1. 시료 등록", "2. 시료 목록", "3. 시료 검색", "0. 돌아가기"));
+        String input = view.readLine();
+        switch (input) {
+            case "1" -> handleRegister();
+            case "2" -> handleList();
+            case "3" -> handleSearch();
+            case "0" -> {}
+            default -> view.showError("올바른 메뉴 번호를 입력하세요");
+        }
+    }
+
     public void handleRegister() {
         view.showMessage("시료 ID 입력:");
         String id = view.readLine();
