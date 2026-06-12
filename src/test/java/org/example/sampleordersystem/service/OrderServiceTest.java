@@ -49,4 +49,11 @@ class OrderServiceTest {
         assertEquals("홍길동", order.getCustomerName());
         assertEquals(10, order.getQuantity());
     }
+
+    @Test
+    void placeOrder_미등록시료_예외() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> orderService.placeOrder("NONE", "홍길동", 10));
+        assertEquals("등록되지 않은 시료입니다", ex.getMessage());
+    }
 }
