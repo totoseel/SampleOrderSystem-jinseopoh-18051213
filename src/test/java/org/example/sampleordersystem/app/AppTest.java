@@ -67,14 +67,14 @@ class AppTest {
         orderService = new OrderService(sampleRepo, orderRepo, productionService, idGenerator);
         FakeView view = new FakeView();
         sampleController = new SampleController(sampleService, view);
-        orderController = new OrderController(orderService, view);
+        orderController = new OrderController(orderService, sampleService, view);
         productionController = new ProductionController(productionService, view);
         monitoringController = new MonitoringController(orderService, sampleService, view);
     }
 
     private App buildApp(View view) {
         SampleController sc = new SampleController(sampleService, view);
-        OrderController oc = new OrderController(orderService, view);
+        OrderController oc = new OrderController(orderService, sampleService, view);
         ProductionController pc = new ProductionController(productionService, view);
         MonitoringController mc = new MonitoringController(orderService, sampleService, view);
         return new App(sc, oc, pc, mc, productionService, sampleService, orderService, view);
@@ -92,7 +92,7 @@ class AppTest {
 
         FakeView view = new FakeView("0");
         SampleController sc = new SampleController(sampleService, view);
-        OrderController oc = new OrderController(orderService, view);
+        OrderController oc = new OrderController(orderService, sampleService, view);
         ProductionController pc = new ProductionController(countingService, view);
         MonitoringController mc = new MonitoringController(orderService, sampleService, view);
         App app = new App(sc, oc, pc, mc, countingService, sampleService, orderService, view);
@@ -115,7 +115,7 @@ class AppTest {
     @DisplayName("입력 2는 OrderController.handlePlace()로 라우팅된다")
     void appRoutesToOrderPlaceOnInput2() {
         boolean[] called = {false};
-        OrderController countingOrder = new OrderController(orderService, new FakeView()) {
+        OrderController countingOrder = new OrderController(orderService, sampleService, new FakeView()) {
             @Override
             public void handlePlace() { called[0] = true; }
         };
@@ -140,7 +140,7 @@ class AppTest {
         };
 
         FakeView view = new FakeView("1", "0");
-        OrderController oc = new OrderController(orderService, view);
+        OrderController oc = new OrderController(orderService, sampleService, view);
         ProductionController pc = new ProductionController(productionService, view);
         MonitoringController mc = new MonitoringController(orderService, sampleService, view);
         App app = new App(countingSample, oc, pc, mc, productionService, sampleService, orderService, view);
@@ -153,7 +153,7 @@ class AppTest {
     @DisplayName("입력 3은 OrderController.handleApproveOrReject()로 라우팅된다")
     void appRoutesToApproveOrRejectOnInput3() {
         boolean[] called = {false};
-        OrderController countingOrder = new OrderController(orderService, new FakeView()) {
+        OrderController countingOrder = new OrderController(orderService, sampleService, new FakeView()) {
             @Override
             public void handleApproveOrReject() { called[0] = true; }
         };
@@ -179,7 +179,7 @@ class AppTest {
 
         FakeView view = new FakeView("4", "0");
         SampleController sc = new SampleController(sampleService, view);
-        OrderController oc = new OrderController(orderService, view);
+        OrderController oc = new OrderController(orderService, sampleService, view);
         ProductionController pc = new ProductionController(productionService, view);
         App app = new App(sc, oc, pc, countingMonitoring, productionService, sampleService, orderService, view);
 
@@ -198,7 +198,7 @@ class AppTest {
 
         FakeView view = new FakeView("5", "0");
         SampleController sc = new SampleController(sampleService, view);
-        OrderController oc = new OrderController(orderService, view);
+        OrderController oc = new OrderController(orderService, sampleService, view);
         MonitoringController mc = new MonitoringController(orderService, sampleService, view);
         App app = new App(sc, oc, countingProduction, mc, productionService, sampleService, orderService, view);
 
@@ -210,7 +210,7 @@ class AppTest {
     @DisplayName("입력 6은 OrderController.handleRelease()로 라우팅된다")
     void appRoutesToReleaseOnInput6() {
         boolean[] called = {false};
-        OrderController countingOrder = new OrderController(orderService, new FakeView()) {
+        OrderController countingOrder = new OrderController(orderService, sampleService, new FakeView()) {
             @Override
             public void handleRelease() { called[0] = true; }
         };

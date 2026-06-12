@@ -46,7 +46,7 @@ public class Main {
 
         View view = new ConsoleView(new Scanner(System.in), System.out);
         SampleController sampleCtrl = new SampleController(sampleService, view);
-        OrderController orderCtrl = new OrderController(orderService, view);
+        OrderController orderCtrl = new OrderController(orderService, sampleService, view);
         ProductionController productionCtrl = new ProductionController(productionService, view);
         MonitoringController monitoringCtrl = new MonitoringController(orderService, sampleService, view);
 

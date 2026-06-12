@@ -2,30 +2,50 @@ package org.example.sampleordersystem.controller;
 
 import org.example.sampleordersystem.model.Order;
 import org.example.sampleordersystem.model.OrderStatus;
+import org.example.sampleordersystem.model.Sample;
 import org.example.sampleordersystem.service.OrderService;
+import org.example.sampleordersystem.service.SampleService;
 import org.example.sampleordersystem.view.View;
 
 import java.util.List;
 
 public class OrderController {
     private final OrderService orderService;
+    private final SampleService sampleService;
     private final View view;
 
-    public OrderController(OrderService orderService, View view) {
+    public OrderController(OrderService orderService, SampleService sampleService, View view) {
         this.orderService = orderService;
+        this.sampleService = sampleService;
         this.view = view;
     }
 
     public void handlePlace() {
-        view.showMessage("시료 ID 입력:");
-        String sampleId = view.readLine();
+        List<Sample> samples = sampleService.findAll();
+        if (samples.isEmpty()) {
+            view.showMessage("등록된 시료가 없습니다.");
+            return;
+        }
+        view.showSamples(samples);
+        view.showMessage("시료 번호 입력:");
+        int sampleIndex;
+        try {
+            sampleIndex = Integer.parseInt(view.readLine()) - 1;
+        } catch (NumberFormatException e) {
+            view.showError("숫자 형식이 올바르지 않습니다: " + e.getMessage());
+            return;
+        }
+        if (sampleIndex < 0 || sampleIndex >= samples.size()) {
+            view.showError("올바른 번호를 입력하세요.");
+            return;
+        }
+        String sampleId = samples.get(sampleIndex).getId();
+
         view.showMessage("고객명 입력:");
         String customerName = view.readLine();
         view.showMessage("수량 입력:");
-        String quantityStr = view.readLine();
-
         try {
-            int quantity = Integer.parseInt(quantityStr);
+            int quantity = Integer.parseInt(view.readLine());
             orderService.placeOrder(sampleId, customerName, quantity);
             view.showMessage("주문이 접수되었습니다.");
         } catch (NumberFormatException e) {

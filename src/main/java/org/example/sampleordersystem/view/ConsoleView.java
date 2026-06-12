@@ -55,8 +55,9 @@ public class ConsoleView implements View {
     @Override
     public void showSamples(List<Sample> samples) {
         out.println("[시료 목록]");
-        for (Sample s : samples) {
-            out.printf("  %s | %s | 재고: %d%n", s.getId(), s.getName(), s.getStock());
+        for (int i = 0; i < samples.size(); i++) {
+            Sample s = samples.get(i);
+            out.printf("  %d. %s | %s | 재고: %d%n", i + 1, s.getId(), s.getName(), s.getStock());
         }
     }
 
