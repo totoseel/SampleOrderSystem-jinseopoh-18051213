@@ -51,4 +51,16 @@ class OrderIdGeneratorTest {
         time.set(LocalDateTime.of(2024, 1, 2, 0, 0));
         assertEquals("ORD-20240102-0001", gen.next());
     }
+
+    @Test
+    @DisplayName("currentSeq는 next() 호출 후 현재 순번을 반환한다")
+    void currentSeqReturnsCurrentSequence() {
+        TimeProvider fixed = () -> LocalDateTime.of(2024, 1, 1, 0, 0);
+        OrderIdGenerator gen = new OrderIdGenerator(0, fixed);
+
+        gen.next();
+        gen.next();
+
+        assertEquals(2, gen.currentSeq());
+    }
 }
