@@ -119,13 +119,15 @@ class ProductionServiceTest {
     // Cycle 3-11: tick()으로 생산 완료 시 CONFIRMED 전환 + 재고 반영
     @Test
     void tickCompletesAndTransitionsToConfirmed() {
-        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 0));
+        // 재고 5, 주문 10, shortage=5, yield=0.9 → actualQty=ceil(5/(0.9*0.9))=ceil(6.17)=7
+        // 생산 완료 후 재고: 5 + 7(actualQty) - 10(주문량) = 2
+        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 5));
         Order order = new Order("ORD-001", "S001", "홍길동", 10, timeProvider.now());
         order.transitionTo(OrderStatus.PRODUCING);
         orderRepo.save(order);
 
-        // shortage=10, actualQty=7, totalMinutes=210
-        ProductionEntry entry = new ProductionEntry("ORD-001", "S001", 10, 7, 210.0, null);
+        // shortage=5, actualQty=7, totalMinutes=210
+        ProductionEntry entry = new ProductionEntry("ORD-001", "S001", 5, 7, 210.0, null);
         productionService.enqueue(entry);
 
         // 210분 + 1초 경과 → 진행률 100% 초과
@@ -135,8 +137,8 @@ class ProductionServiceTest {
         // CONFIRMED 전환 확인
         assertEquals(OrderStatus.CONFIRMED,
             orderRepo.findById("ORD-001").get().getStatus());
-        // 재고 반영: shortage(10)만큼 증가
-        assertEquals(10, sampleRepo.findById("S001").get().getStock());
+        // 재고 반영: 5(기존) + 7(actualQty) - 10(주문량) = 2
+        assertEquals(2, sampleRepo.findById("S001").get().getStock());
         // 큐에서 제거됨
         assertTrue(productionService.getCurrent().isEmpty());
     }
@@ -144,8 +146,10 @@ class ProductionServiceTest {
     // Cycle 3-12: 첫 항목 완료 후 다음 항목 자동 시작
     @Test
     void tickStartsNextEntryAfterCompletion() {
-        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 0));
-        sampleRepo.save(new Sample("S002", "갈륨", 20, 0.8, 0));
+        // S001: 재고 10, 주문 10, shortage=10, actualQty=14 → 완료 후 재고 10+14-10=14
+        // S002: 재고 5, 주문 5, shortage=5, actualQty=7 → 완료 후 재고 5+7-5=7
+        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 10));
+        sampleRepo.save(new Sample("S002", "갈륨", 20, 0.8, 5));
 
         Order order1 = new Order("ORD-001", "S001", "홍길동", 10, timeProvider.now());
         order1.transitionTo(OrderStatus.PRODUCING);
@@ -155,8 +159,10 @@ class ProductionServiceTest {
         order2.transitionTo(OrderStatus.PRODUCING);
         orderRepo.save(order2);
 
-        ProductionEntry first = new ProductionEntry("ORD-001", "S001", 10, 7, 210.0, null);
-        ProductionEntry second = new ProductionEntry("ORD-002", "S002", 5, 4, 80.0, null);
+        // S001: shortage=10, actualQty=14(ceil(10/0.81)=13, 여기서는 14로 여유있게), totalMinutes=210
+        // S002: shortage=5, actualQty=7, totalMinutes=80
+        ProductionEntry first = new ProductionEntry("ORD-001", "S001", 10, 14, 210.0, null);
+        ProductionEntry second = new ProductionEntry("ORD-002", "S002", 5, 7, 80.0, null);
         productionService.enqueue(first);
         productionService.enqueue(second);
 
@@ -170,36 +176,45 @@ class ProductionServiceTest {
         assertNotNull(productionService.getCurrent().get().getStartedAt());
     }
 
-    // Cycle 3-13: ceil(shortage / (yield * 0.9)) 공식 검증
+    // Cycle 3-13: approve() 후 ProductionEntry의 actualQty가 공식대로 계산됨을 검증
+    // OrderService에 approve()가 있으므로 OrderServiceTest에서 통합 검증
+    // 여기서는 ProductionEntry 직접 구성으로 공식 적용 결과를 검증
     @Test
-    void actualQtyFormula() {
-        // shortage=10, yield=0.9 → ceil(10 / (0.9*0.9)) = ceil(10/0.81) = ceil(12.345...) = 13
-        double yield = 0.9;
-        int shortage = 10;
-        int expected = (int) Math.ceil(shortage / (yield * 0.9));
-        assertEquals(13, expected);
+    void actualQtyStoredCorrectlyInProductionEntry() {
+        // shortage=5, yield=0.9 → actualQty = ceil(5 / (0.9*0.9)) = ceil(6.17) = 7
+        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 5));
+        Order order = new Order("ORD-001", "S001", "홍길동", 10, timeProvider.now());
+        order.transitionTo(OrderStatus.PRODUCING);
+        orderRepo.save(order);
 
-        // shortage=5, yield=0.8 → ceil(5 / (0.8*0.9)) = ceil(5/0.72) = ceil(6.944...) = 7
-        yield = 0.8;
-        shortage = 5;
-        expected = (int) Math.ceil(shortage / (yield * 0.9));
-        assertEquals(7, expected);
+        // OrderService.approve()를 통해 생성된 ProductionEntry의 actualQty를 검증하려면
+        // OrderServiceTest에서 진행. 여기서는 직접 enqueue한 항목의 값을 확인.
+        int shortage = 5;
+        double yield = 0.9;
+        int expectedActualQty = (int) Math.ceil(shortage / (yield * 0.9)); // 7
+
+        ProductionEntry entry = new ProductionEntry("ORD-001", "S001", shortage, expectedActualQty, 210.0, null);
+        productionService.enqueue(entry);
+
+        assertEquals(expectedActualQty, prodRepo.findAll().get(0).getActualQty());
+        assertEquals(7, expectedActualQty);
     }
 
     // Cycle 3-14: timeScale 배율 적용 - timeScale=60이면 현실 1초=시스템 1분
     @Test
     void timeScaleAcceleratesCompletion() {
         // timeScale=60: 총 생산시간 60분이 현실 1분(60초)에 완료됨
+        // 재고 5, 주문 10, shortage=5, actualQty=7 → 완료 후 재고 5+7-10=2
         ProductionService fastService = new ProductionService(
             new InMemoryProductionRepository(), orderRepo, sampleRepo, timeProvider, 60.0);
 
-        sampleRepo.save(new Sample("S003", "실리콘", 30, 0.9, 0));
+        sampleRepo.save(new Sample("S003", "실리콘", 30, 0.9, 5));
         Order order = new Order("ORD-003", "S003", "박민수", 10, timeProvider.now());
         order.transitionTo(OrderStatus.PRODUCING);
         orderRepo.save(order);
 
-        // totalMinutes=60, timeScale=60 → 실제 완료시간=60/60=1분
-        ProductionEntry entry = new ProductionEntry("ORD-003", "S003", 10, 7, 60.0, null);
+        // shortage=5, actualQty=7, totalMinutes=60, timeScale=60 → 실제 완료시간=60/60=1분
+        ProductionEntry entry = new ProductionEntry("ORD-003", "S003", 5, 7, 60.0, null);
         fastService.enqueue(entry);
 
         // 1분 + 1초 경과 → 완료됨
@@ -237,11 +252,12 @@ class ProductionServiceTest {
     @Test
     void startNextEntry_이미_시작된_항목_유지() {
         // 이미 startedAt이 있는 항목을 저장 후 tick 실행
+        // 재고 10, 주문 10, shortage=5, actualQty=7 → 완료 후 재고 10+7-10=7
         LocalDateTime alreadyStarted = timeProvider.now().minusMinutes(5);
         ProductionEntry started = new ProductionEntry("ORD-PRE", "S001", 5, 7, 60.0, alreadyStarted);
         prodRepo.save(started);
 
-        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 0));
+        sampleRepo.save(new Sample("S001", "웨이퍼", 30, 0.9, 10));
         Order order = new Order("ORD-PRE", "S001", "홍길동", 10, timeProvider.now());
         order.transitionTo(OrderStatus.PRODUCING);
         orderRepo.save(order);

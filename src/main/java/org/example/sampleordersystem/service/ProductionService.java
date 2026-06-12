@@ -68,13 +68,13 @@ public class ProductionService {
     }
 
     private void completeProduction(ProductionEntry entry) {
-        // 재고 반영: shortage만큼 증가
-        sampleRepository.findById(entry.getSampleId()).ifPresent(sample -> {
-            sample.increaseStock(entry.getShortage());
-            sampleRepository.save(sample);
-        });
-        // 주문 CONFIRMED 전환
+        // 재고 반영: actualQty만큼 보충 후 주문 수량만큼 출고 차감
         orderRepository.findById(entry.getOrderId()).ifPresent(order -> {
+            sampleRepository.findById(entry.getSampleId()).ifPresent(sample -> {
+                sample.increaseStock(entry.getActualQty());
+                sample.decreaseStock(order.getQuantity());
+                sampleRepository.save(sample);
+            });
             order.transitionTo(OrderStatus.CONFIRMED);
             orderRepository.save(order);
         });
